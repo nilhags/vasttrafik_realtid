@@ -1,4 +1,66 @@
 {
-  "greenhouse": [],
-  "lever": []
+  "greenhouse": [
+    {
+      "boardToken": "Wizinc",
+      "employer": "Wiz"
+    },
+    {
+      "boardToken": "sentinellabs",
+      "employer": "SentinelOne"
+    },
+    {
+      "boardToken": "Databricks",
+      "employer": "Databricks"
+    },
+    {
+      "boardToken": "datadog",
+      "employer": "Datadog"
+    },
+    {
+      "boardToken": "verifone",
+      "employer": "Verifone"
+    }
+  ],
+  "lever": [
+    {
+      "site": "trustly",
+      "employer": "Trustly",
+      "region": "Örebro län"
+    },
+    {
+      "site": "dnb",
+      "employer": "Dun & Bradstreet",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "nekohealth",
+      "employer": "Neko Health",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "palantir",
+      "employer": "Palantir",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "extremenetworks",
+      "employer": "Extreme Networks",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "jobandtalent",
+      "employer": "Job&Talent",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "yubico",
+      "employer": "Yubico",
+      "region": "Stockholms län"
+    },
+    {
+      "site": "welocalize",
+      "employer": "Welocalize",
+      "region": "Sverige"
+    }
+  ]
 }

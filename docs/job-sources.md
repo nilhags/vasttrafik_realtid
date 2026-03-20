@@ -8,6 +8,12 @@
 - `Teamtailor`-företag där åtkomst är möjlig enligt villkor
 - offentliga arbetsgivare via egna karriärsidor eller ATS
 
+## Aktiverade primärkällor i koden
+
+- `Arbetsförmedlingen`
+- `Greenhouse`: Wiz, SentinelOne, Databricks, Datadog, Verifone
+- `Lever`: Trustly, Dun & Bradstreet, Neko Health, Palantir, Extreme Networks, Job&Talent, Yubico, Welocalize
+
 ## Prioritet 2
 
 - `The Hub`

@@ -42,6 +42,13 @@ GitHub-secrets som behövs:
 
 Schemat kör import tre gånger per dag. Arbetsförmedlingen hämtas med Karlskoga som utgångspunkt och `100 km` radie.
 
+Fler primära källor hämtas via företagsägda job boards:
+
+- `Greenhouse`
+- `Lever`
+
+Konfigurationen ligger i [config/source-targets.json](/Users/nils.hagstrom/Kodning/vasttrafik_realtid/config/source-targets.json).
+
 ## Supabase
 
 1. Skapa ett projekt i Supabase

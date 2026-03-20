@@ -1,4 +1,8 @@
 import targets from "../../config/source-targets.json";
+import {
+  inferCoordinatesFromTexts,
+  isRelevantForKarlskogaArea,
+} from "../../shared/locationCatalog";
 import { supabase } from "../lib/supabase";
 import type { JobUpsertRow, SourceRunResult } from "../lib/types";
 
@@ -27,15 +31,20 @@ function normalizeRemoteMode(job: GreenhouseJob): string | null {
 }
 
 function mapJob(job: GreenhouseJob, target: GreenhouseTarget): JobUpsertRow {
+  const location = job.location?.name ?? null;
+  const metadataText =
+    job.metadata?.map((entry) => `${entry.name ?? ""} ${entry.value ?? ""}`).join(" ") ?? "";
+  const coordinates = inferCoordinatesFromTexts(location, metadataText, job.content);
+
   return {
     external_id: String(job.id),
     source_name: `Greenhouse:${target.boardToken}`,
     title: job.title,
     employer: target.employer,
-    location_name: job.location?.name ?? null,
+    location_name: location,
     region: null,
-    latitude: null,
-    longitude: null,
+    latitude: coordinates?.lat ?? null,
+    longitude: coordinates?.lon ?? null,
     remote_mode: normalizeRemoteMode(job),
     employment_type: null,
     seniority: null,
@@ -68,7 +77,17 @@ export async function fetchGreenhouseJobs(): Promise<SourceRunResult> {
 
   for (const target of greenhouseTargets) {
     const jobs = await fetchBoardJobs(target);
-    const rows = jobs.map((job) => mapJob(job, target));
+    const rows = jobs
+      .map((job) => mapJob(job, target))
+      .filter((job) =>
+        isRelevantForKarlskogaArea(
+          job.location_name,
+          job.remote_mode,
+          job.region,
+          job.title,
+          job.description,
+        ),
+      );
 
     if (rows.length === 0) {
       continue;

@@ -19,25 +19,7 @@ export type JobRow = {
   longitude: number | null;
 };
 
-// Karlskoga centrum
-const KARLSKOGA_LAT = 59.3267;
-const KARLSKOGA_LON = 14.5208;
-
-/** Haversine distance in km. */
-export function distanceKm(
-  lat1: number, lon1: number,
-  lat2: number, lon2: number,
-): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+import { distanceKm, inferCoordinatesFromLocation, KARLSKOGA } from "../../shared/locationCatalog";
 
 /** Lightweight view-model used by UI components. */
 export type JobItem = {
@@ -60,9 +42,12 @@ export type JobItem = {
 /** Map a Supabase row to the UI view-model. */
 export function rowToJobItem(row: JobRow): JobItem {
   const pubDate = row.published_at ? new Date(row.published_at) : null;
+  const inferredCoordinates = inferCoordinatesFromLocation(row.location_name);
+  const latitude = row.latitude ?? inferredCoordinates?.lat ?? null;
+  const longitude = row.longitude ?? inferredCoordinates?.lon ?? null;
   const dist =
-    row.latitude != null && row.longitude != null
-      ? distanceKm(KARLSKOGA_LAT, KARLSKOGA_LON, row.latitude, row.longitude)
+    latitude != null && longitude != null
+      ? distanceKm(KARLSKOGA.lat, KARLSKOGA.lon, latitude, longitude)
       : null;
 
   return {

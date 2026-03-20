@@ -1,4 +1,8 @@
 import targets from "../../config/source-targets.json";
+import {
+  inferCoordinatesFromTexts,
+  isRelevantForKarlskogaArea,
+} from "../../shared/locationCatalog";
 import { supabase } from "../lib/supabase";
 import type { JobUpsertRow, SourceRunResult } from "../lib/types";
 
@@ -31,16 +35,25 @@ function normalizeRemoteMode(workplaceType: LeverJob["workplaceType"]): string |
 }
 
 function mapJob(job: LeverJob, target: LeverTarget): JobUpsertRow {
+  const location = job.categories?.location ?? null;
+  const coordinates = inferCoordinatesFromTexts(
+    location,
+    target.region,
+    job.descriptionPlain,
+    job.text,
+  );
+  const remoteMode = normalizeRemoteMode(job.workplaceType);
+
   return {
     external_id: job.id,
     source_name: `Lever:${target.site}`,
     title: job.text,
     employer: target.employer,
-    location_name: job.categories?.location ?? null,
+    location_name: location,
     region: target.region ?? null,
-    latitude: null,
-    longitude: null,
-    remote_mode: normalizeRemoteMode(job.workplaceType),
+    latitude: coordinates?.lat ?? null,
+    longitude: coordinates?.lon ?? null,
+    remote_mode: remoteMode,
     employment_type: job.categories?.commitment ?? null,
     seniority: null,
     language_requirements: null,
@@ -75,7 +88,17 @@ export async function fetchLeverJobs(): Promise<SourceRunResult> {
 
   for (const target of leverTargets) {
     const jobs = await fetchLeverSiteJobs(target);
-    const rows = jobs.map((job) => mapJob(job, target));
+    const rows = jobs
+      .map((job) => mapJob(job, target))
+      .filter((job) =>
+        isRelevantForKarlskogaArea(
+          job.location_name,
+          job.remote_mode,
+          job.region,
+          job.title,
+          job.description,
+        ),
+      );
 
     if (rows.length === 0) {
       continue;
