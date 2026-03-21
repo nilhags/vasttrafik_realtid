@@ -22,7 +22,7 @@ type GreenhouseJob = {
 };
 
 function normalizeRemoteMode(job: GreenhouseJob): string | null {
-  const text = [job.title, job.location?.name ?? "", job.content ?? ""]
+  const text = [job.location?.name ?? "", job.content ?? ""]
     .join(" ")
     .toLowerCase();
   if (text.includes("hybrid")) return "Hybrid";
@@ -30,11 +30,28 @@ function normalizeRemoteMode(job: GreenhouseJob): string | null {
   return "På plats";
 }
 
+function decodeHtml(text: string | null | undefined) {
+  if (!text) {
+    return null;
+  }
+
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
 function mapJob(job: GreenhouseJob, target: GreenhouseTarget): JobUpsertRow {
   const location = job.location?.name ?? null;
   const metadataText =
     job.metadata?.map((entry) => `${entry.name ?? ""} ${entry.value ?? ""}`).join(" ") ?? "";
-  const coordinates = inferCoordinatesFromTexts(location, metadataText, job.content);
+  const coordinates = inferCoordinatesFromTexts(location, metadataText);
+  const description = decodeHtml(job.content)
+    ?.replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() ?? null;
 
   return {
     external_id: String(job.id),
@@ -50,7 +67,7 @@ function mapJob(job: GreenhouseJob, target: GreenhouseTarget): JobUpsertRow {
     seniority: null,
     language_requirements: null,
     salary_text: null,
-    description: job.content?.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() ?? null,
+    description,
     original_url: job.absolute_url ?? null,
     published_at: job.updated_at ?? null,
     application_deadline: null,
@@ -76,20 +93,24 @@ export async function fetchGreenhouseJobs(): Promise<SourceRunResult> {
   let written = 0;
 
   for (const target of greenhouseTargets) {
+    const sourceName = `Greenhouse:${target.boardToken}`;
     const jobs = await fetchBoardJobs(target);
     const rows = jobs
       .map((job) => mapJob(job, target))
-      .filter((job) =>
-        isRelevantForKarlskogaArea(
-          job.location_name,
-          job.remote_mode,
-          job.region,
-          job.title,
-          job.description,
-        ),
-      );
+      .filter((job) => isRelevantForKarlskogaArea(job.location_name, job.remote_mode, job.region));
+
+    const { error: deleteError } = await supabase
+      .from("jobs")
+      .delete()
+      .eq("source_name", sourceName);
+
+    if (deleteError) {
+      console.error(`Greenhouse ${target.boardToken} delete: ${deleteError.message}`);
+      continue;
+    }
 
     if (rows.length === 0) {
+      console.log(`Greenhouse ${target.boardToken}: 0 relevanta jobb.`);
       continue;
     }
 

@@ -36,12 +36,7 @@ function normalizeRemoteMode(workplaceType: LeverJob["workplaceType"]): string |
 
 function mapJob(job: LeverJob, target: LeverTarget): JobUpsertRow {
   const location = job.categories?.location ?? null;
-  const coordinates = inferCoordinatesFromTexts(
-    location,
-    target.region,
-    job.descriptionPlain,
-    job.text,
-  );
+  const coordinates = inferCoordinatesFromTexts(location, target.region);
   const remoteMode = normalizeRemoteMode(job.workplaceType);
 
   return {
@@ -87,20 +82,24 @@ export async function fetchLeverJobs(): Promise<SourceRunResult> {
   let written = 0;
 
   for (const target of leverTargets) {
+    const sourceName = `Lever:${target.site}`;
     const jobs = await fetchLeverSiteJobs(target);
     const rows = jobs
       .map((job) => mapJob(job, target))
-      .filter((job) =>
-        isRelevantForKarlskogaArea(
-          job.location_name,
-          job.remote_mode,
-          job.region,
-          job.title,
-          job.description,
-        ),
-      );
+      .filter((job) => isRelevantForKarlskogaArea(job.location_name, job.remote_mode, job.region));
+
+    const { error: deleteError } = await supabase
+      .from("jobs")
+      .delete()
+      .eq("source_name", sourceName);
+
+    if (deleteError) {
+      console.error(`Lever ${target.site} delete: ${deleteError.message}`);
+      continue;
+    }
 
     if (rows.length === 0) {
+      console.log(`Lever ${target.site}: 0 relevanta jobb.`);
       continue;
     }
 

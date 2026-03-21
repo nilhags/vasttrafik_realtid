@@ -13,6 +13,7 @@
 - `Arbetsförmedlingen`
 - `Greenhouse`: Wiz, SentinelOne, Databricks, Datadog, Verifone
 - `Lever`: Trustly, Dun & Bradstreet, Neko Health, Palantir, Extreme Networks, Job&Talent, Yubico, Welocalize
+- `Varbi`: Region Värmland, Karlstads universitet, Länsstyrelsen i Örebro län, Arbetsförmedlingen
 
 ## Prioritet 2
 

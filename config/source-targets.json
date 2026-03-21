@@ -62,5 +62,27 @@
       "employer": "Welocalize",
       "region": "Sverige"
     }
+  ],
+  "varbi": [
+    {
+      "host": "regionvarmland.varbi.com",
+      "employer": "Region Värmland",
+      "region": "Värmlands län"
+    },
+    {
+      "host": "kau.varbi.com",
+      "employer": "Karlstads universitet",
+      "region": "Värmlands län"
+    },
+    {
+      "host": "lansstyrelsen.varbi.com",
+      "employer": "Länsstyrelsen i Örebro län",
+      "region": "Örebro län"
+    },
+    {
+      "host": "arbetsformedlingen.varbi.com",
+      "employer": "Arbetsförmedlingen",
+      "region": "Sverige"
+    }
   ]
 }

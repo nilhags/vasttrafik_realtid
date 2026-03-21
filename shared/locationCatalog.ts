@@ -58,6 +58,45 @@ const CITY_COORDINATES: Record<string, { lat: number; lon: number }> = {
   malmö: { lat: 55.605, lon: 13.0038 },
 };
 
+const SWEDISH_REGION_MARKERS = [
+  "orebro lan",
+  "örebro län",
+  "varmlands lan",
+  "värmlands län",
+  "vastmanlands lan",
+  "västmanlands län",
+  "vastra gotalands lan",
+  "västra götalands län",
+];
+
+const FOREIGN_LOCATION_MARKERS = [
+  "australia",
+  "new zealand",
+  "thailand",
+  "vietnam",
+  "mexico",
+  "singapore",
+  "canada",
+  "united states",
+  "usa",
+  "brazil",
+  "argentina",
+  "india",
+  "poland",
+  "germany",
+  "france",
+  "belgium",
+  "netherlands",
+  "spain",
+  "italy",
+  "ireland",
+  "uk",
+  "united kingdom",
+  "austria",
+  "switzerland",
+  "japan",
+];
+
 function normalize(text: string) {
   return text
     .toLowerCase()
@@ -128,17 +167,24 @@ export function isSwedenRelatedLocation(text: string | null | undefined) {
   return (
     normalized.includes("sweden") ||
     normalized.includes("sverige") ||
+    SWEDISH_REGION_MARKERS.some((region) => normalized.includes(region)) ||
     Object.keys(CITY_COORDINATES).some((city) => normalized.includes(city))
   );
 }
 
 export function isRelevantForKarlskogaArea(
-  ...parts: Array<string | null | undefined>
+  location: string | null | undefined,
+  remoteMode: string | null | undefined,
+  region?: string | null,
 ) {
-  const haystack = buildHaystack(parts);
+  const haystack = buildHaystack([location, region]);
 
-  if (isRemoteFriendly(haystack)) {
-    return true;
+  if (FOREIGN_LOCATION_MARKERS.some((marker) => haystack.includes(marker))) {
+    return false;
+  }
+
+  if (remoteMode === "Distans") {
+    return isSwedenRelatedLocation(haystack);
   }
 
   if (!isSwedenRelatedLocation(haystack)) {

@@ -1,6 +1,7 @@
 import { fetchArbetsformedlingenJobs } from "./sources/arbetsformedlingen";
 import { fetchGreenhouseJobs } from "./sources/greenhouse";
 import { fetchLeverJobs } from "./sources/lever";
+import { fetchVarbiJobs } from "./sources/varbi";
 
 async function main() {
   const results = [];
@@ -8,6 +9,7 @@ async function main() {
   results.push(await fetchArbetsformedlingenJobs());
   results.push(await fetchGreenhouseJobs());
   results.push(await fetchLeverJobs());
+  results.push(await fetchVarbiJobs());
 
   console.log("\nSammanfattning:");
   for (const result of results) {

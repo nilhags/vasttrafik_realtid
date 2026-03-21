@@ -46,6 +46,7 @@ Fler primära källor hämtas via företagsägda job boards:
 
 - `Greenhouse`
 - `Lever`
+- `Varbi`
 
 Konfigurationen ligger i [config/source-targets.json](/Users/nils.hagstrom/Kodning/vasttrafik_realtid/config/source-targets.json).
 
